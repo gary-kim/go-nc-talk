@@ -59,7 +59,15 @@ type capabilitiesRequest struct {
 }
 
 func (t *TalkUser) RequestClient(client request.Client) *request.Client {
-	client.Header["OCS-APIRequest"] = "true"
+	if client.Header == nil {
+		client.Header = make(map[string]string)
+	}
+	if client.Header["OCS-APIRequest"] == "" {
+		client.Header["OCS-APIRequest"] = "true"
+	}
+	if client.Header["Accept"] == "" {
+		client.Header["Accept"] = "application/json"
+	}
 	client.BasicAuth = request.BasicAuth{
 		Username: t.User,
 		Password: t.Pass,

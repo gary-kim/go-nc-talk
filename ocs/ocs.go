@@ -6,6 +6,6 @@ type ocs struct {
 
 type ocsMeta struct {
 	Status     string `json:"status"`
-	StatusCode string `json:"statuscode"`
+	StatusCode int    `json:"statuscode"`
 	Message    string `json:"message"`
 }

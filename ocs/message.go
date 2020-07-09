@@ -30,3 +30,9 @@ type OCSTalkRoomMessage struct {
 	ocs
 	TalkRoomMessage []TalkRoomMessage `json:"data"`
 }
+
+// OCSTalkSentResponse describes an ocs response for what is returned when a message is sent
+type OCSTalkRoomSentResponse struct {
+	ocs
+	TalkRoomMessage TalkRoomMessage `json:"data"`
+}

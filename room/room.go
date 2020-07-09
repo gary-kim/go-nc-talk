@@ -39,9 +39,11 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessage, error) {
 	if res.StatusCode() != 201 {
 		return nil, errors.New("unexpected return code")
 	}
-	msgInfo := &ocs.OCSTalkRoomMessage{}
-	err = json.Unmarshal(res.Data, msgInfo)
-	return &msgInfo.TalkRoomMessage[0], err
+	var msgInfo struct {
+		OCS ocs.OCSTalkRoomSentResponse `json:"ocs"`
+	}
+	err = json.Unmarshal(res.Data, &msgInfo)
+	return &msgInfo.OCS.TalkRoomMessage, err
 }
 
 // ReceiveMessages starts watching for new messages
@@ -50,16 +52,19 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
 		"lookIntoFuture":   "1",
-		"limit":            "200",
-		"timeout":          "60",
-		"setReadMarker":    "1",
 		"includeLastKnown": "0",
 	}
-	err := t.TestConnection()
+	lastKnown := ""
+	client := t.User.RequestClient(request.Client{
+		URL:     url,
+		Params:  requestParam,
+		Timeout: time.Second * 60,
+	})
+	res, err := client.Resp()
 	if err != nil {
 		return nil, err
 	}
-	lastKnown := ""
+	lastKnown = res.Header.Get("X-Chat-Last-Given")
 	go func() {
 		for {
 			if ctx.Err() != nil {
@@ -80,7 +85,9 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 			}
 			if res.StatusCode == 200 {
 				lastKnown = res.Header.Get("X-Chat-Last-Given")
-				message := ocs.OCSTalkRoomMessage{}
+				var message struct {
+					OCS ocs.OCSTalkRoomMessage `json:"ocs"`
+				}
 				data, err := ioutil.ReadAll(res.Body)
 				if err != nil {
 					continue
@@ -89,7 +96,7 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 				if err != nil {
 					continue
 				}
-				for _, msg := range message.TalkRoomMessage {
+				for _, msg := range message.OCS.TalkRoomMessage {
 					c <- msg
 				}
 			}
@@ -102,9 +109,6 @@ func (t *TalkRoom) TestConnection() error {
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
 		"lookIntoFuture":   "0",
-		"limit":            "1",
-		"timeout":          "30",
-		"setReadMarker":    "0",
 		"includeLastKnown": "0",
 	}
 	client := t.User.RequestClient(request.Client{
