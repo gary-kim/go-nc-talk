@@ -9,9 +9,9 @@ import (
 
 	"github.com/monaco-io/request"
 
-	"github.com/gary-kim/go-nc-talk/constants"
-	"github.com/gary-kim/go-nc-talk/ocs"
-	"github.com/gary-kim/go-nc-talk/user"
+	"gomod.garykim.dev/nc-talk/constants"
+	"gomod.garykim.dev/nc-talk/ocs"
+	"gomod.garykim.dev/nc-talk/user"
 )
 
 // TalkRoom represents a room in Nextcloud Talk

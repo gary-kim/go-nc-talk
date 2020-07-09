@@ -1,4 +1,4 @@
-module github.com/gary-kim/go-nc-talk
+module gomod.garykim.dev/nc-talk
 
 go 1.13
 

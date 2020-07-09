@@ -1,8 +1,8 @@
 package talk
 
 import (
-	"github.com/gary-kim/go-nc-talk/room"
-	"github.com/gary-kim/go-nc-talk/user"
+	"gomod.garykim.dev/nc-talk/room"
+	"gomod.garykim.dev/nc-talk/user"
 )
 
 // NewUser returns a TalkUser instance
