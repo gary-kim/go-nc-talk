@@ -64,7 +64,7 @@ type Capabilities struct {
 	ConversationsCanCreate bool `ocscapability:"config => conversations => can-create"`
 	ForceMute              bool `ocscapability:"force-mute"`
 	ConversationV2         bool `ocscapability:"conversation-v2"`
-	ChatReferenceId        bool `ocscapability:"chat-reference-id"`
+	ChatReferenceID        bool `ocscapability:"chat-reference-id"`
 }
 
 type capabilitiesRequest struct {
@@ -72,6 +72,7 @@ type capabilitiesRequest struct {
 	Capabilities []string `xml:"ocs>data>capabilities>spreed>features>element"`
 }
 
+// RequestClient returns a monaco-io that is preconfigured to make OCS API calls
 func (t *TalkUser) RequestClient(client request.Client) *request.Client {
 	if client.Header == nil {
 		client.Header = make(map[string]string)
@@ -89,6 +90,7 @@ func (t *TalkUser) RequestClient(client request.Client) *request.Client {
 	return &client
 }
 
+// Capabilities returns an instance of Capabilities that describes what the Nextcloud Talk instance supports
 func (t *TalkUser) Capabilities() (*Capabilities, error) {
 	if t.capabilities != nil {
 		return t.capabilities, nil

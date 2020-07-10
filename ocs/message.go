@@ -28,8 +28,8 @@ const (
 	MessageCommand MessageType = "command"
 )
 
-// TalkRoomMessage describes the data part of a ocs response for a Talk room message
-type TalkRoomMessage struct {
+// TalkRoomMessageData describes the data part of a ocs response for a Talk room message
+type TalkRoomMessageData struct {
 	Message          string      `json:"message"`
 	ID               int         `json:"id"`
 	ActorID          string      `json:"actorId"`
@@ -39,14 +39,14 @@ type TalkRoomMessage struct {
 	MessageType      MessageType `json:"messageType"`
 }
 
-// OCSTalkRoomMessage describes an ocs response for a Talk room message
-type OCSTalkRoomMessage struct {
+// TalkRoomMessage describes an ocs response for a Talk room message
+type TalkRoomMessage struct {
 	ocs
-	TalkRoomMessage []TalkRoomMessage `json:"data"`
+	TalkRoomMessage []TalkRoomMessageData `json:"data"`
 }
 
-// OCSTalkSentResponse describes an ocs response for what is returned when a message is sent
-type OCSTalkRoomSentResponse struct {
+// TalkRoomSentResponse describes an ocs response for what is returned when a message is sent
+type TalkRoomSentResponse struct {
 	ocs
-	TalkRoomMessage TalkRoomMessage `json:"data"`
+	TalkRoomMessage TalkRoomMessageData `json:"data"`
 }

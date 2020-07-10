@@ -35,7 +35,7 @@ type TalkRoom struct {
 }
 
 // SendMessage sends a message in the Talk room
-func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessage, error) {
+func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParams := map[string]string{
 		"message": msg,
@@ -54,15 +54,15 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessage, error) {
 		return nil, errors.New("unexpected return code")
 	}
 	var msgInfo struct {
-		OCS ocs.OCSTalkRoomSentResponse `json:"ocs"`
+		OCS ocs.TalkRoomSentResponse `json:"ocs"`
 	}
 	err = json.Unmarshal(res.Data, &msgInfo)
 	return &msgInfo.OCS.TalkRoomMessage, err
 }
 
 // ReceiveMessages starts watching for new messages
-func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessage, error) {
-	c := make(chan ocs.TalkRoomMessage)
+func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessageData, error) {
+	c := make(chan ocs.TalkRoomMessageData)
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
 		"lookIntoFuture":   "1",
@@ -100,7 +100,7 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 			if res.StatusCode == 200 {
 				lastKnown = res.Header.Get("X-Chat-Last-Given")
 				var message struct {
-					OCS ocs.OCSTalkRoomMessage `json:"ocs"`
+					OCS ocs.TalkRoomMessage `json:"ocs"`
 				}
 				data, err := ioutil.ReadAll(res.Body)
 				if err != nil {
@@ -119,6 +119,7 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 	return c, nil
 }
 
+// TestConnection tests the connection with the Nextcloud Talk instance and returns an error if it could not connect
 func (t *TalkRoom) TestConnection() error {
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
