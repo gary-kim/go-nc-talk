@@ -82,6 +82,9 @@ func (t *TalkUser) Capabilities() (*Capabilities, error) {
 
 	client := t.RequestClient(request.Client{
 		URL: ocsCapabilitiesEndpoint,
+		Header: map[string]string{
+			"Accept": "application/xml",
+		},
 	})
 	res, err := client.Do()
 	if err != nil {
