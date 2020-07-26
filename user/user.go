@@ -17,6 +17,7 @@ package user
 import (
 	"encoding/xml"
 	"reflect"
+	"strings"
 
 	"github.com/monaco-io/request"
 )
@@ -86,6 +87,11 @@ func (t *TalkUser) RequestClient(client request.Client) *request.Client {
 	client.BasicAuth = request.BasicAuth{
 		Username: t.User,
 		Password: t.Pass,
+	}
+
+	// Set Nextcloud URL if there is no host
+	if strings.HasPrefix(client.URL, t.NextcloudURL) {
+		client.URL = t.NextcloudURL + client.URL
 	}
 	return &client
 }
