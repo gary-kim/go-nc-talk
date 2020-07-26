@@ -14,6 +14,10 @@
 
 package ocs
 
+import (
+	"strings"
+)
+
 // MessageType describes what kind of message a returned Nextcloud Talk message is
 type MessageType string
 
@@ -30,13 +34,27 @@ const (
 
 // TalkRoomMessageData describes the data part of a ocs response for a Talk room message
 type TalkRoomMessageData struct {
-	Message          string      `json:"message"`
-	ID               int         `json:"id"`
-	ActorID          string      `json:"actorId"`
-	ActorDisplayName string      `json:"actorDisplayName"`
-	SystemMessage    string      `json:"systemMessage"`
-	Timestamp        int         `json:"timestamp"`
-	MessageType      MessageType `json:"messageType"`
+	Message           string                      `json:"message"`
+	ID                int                         `json:"id"`
+	ActorID           string                      `json:"actorId"`
+	ActorDisplayName  string                      `json:"actorDisplayName"`
+	SystemMessage     string                      `json:"systemMessage"`
+	Timestamp         int                         `json:"timestamp"`
+	MessageType       MessageType                 `json:"messageType"`
+	MessageParameters map[string]RichObjectString `json:"messageParameters"`
+}
+
+// PlainMessage returns the message string with placeholders replaced
+//
+// * User and group placeholders will be replaced with the name of the user or group respectively.
+//
+// * File placeholders will be replaced with the name of the file.
+func (m *TalkRoomMessageData) PlainMessage() string {
+	tr := m.Message
+	for key, value := range m.MessageParameters {
+		tr = strings.ReplaceAll(tr, "{"+key+"}", value.Name)
+	}
+	return tr
 }
 
 // TalkRoomMessage describes an ocs response for a Talk room message

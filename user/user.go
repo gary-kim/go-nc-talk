@@ -21,6 +21,7 @@ import (
 
 	"github.com/monaco-io/request"
 
+	"gomod.garykim.dev/nc-talk/constants"
 	"gomod.garykim.dev/nc-talk/ocs"
 )
 
@@ -171,4 +172,20 @@ func sliceContains(s []string, search string) bool {
 		}
 	}
 	return false
+}
+
+// DownloadFile downloads the file at the given path
+//
+// Meant to be used with rich object string's path.
+func (t *TalkUser) DownloadFile(path string) (data *[]byte, err error) {
+	url := t.NextcloudURL + constants.RemoteDavEndpoint(t.User, "files") + path
+	c := t.RequestClient(request.Client{
+		URL: url,
+	})
+	res, err := c.Do()
+	if err != nil || res.StatusCode() != 200 {
+		return
+	}
+	data = &res.Data
+	return
 }
