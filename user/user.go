@@ -16,6 +16,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/monaco-io/request"
@@ -25,6 +26,11 @@ import (
 
 const (
 	ocsCapabilitiesEndpoint = "/ocs/v2.php/cloud/capabilities"
+)
+
+var (
+	// ErrUserIsNil is returned when a funciton is called with an nil user.
+	ErrUserIsNil = errors.New("user is nil")
 )
 
 // TalkUser represents a user of Nextcloud Talk
