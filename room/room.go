@@ -28,6 +28,17 @@ import (
 	"gomod.garykim.dev/nc-talk/user"
 )
 
+var (
+	// ErrEmptyToken is returned when the room token is empty
+	ErrEmptyToken = errors.New("given an empty token")
+	// ErrRoomNotFound is returned when a room with the given token could not be found
+	ErrRoomNotFound = errors.New("room could not be found")
+	// ErrNotModeratorInLobby is returned when the room is in lobby mode but the user is not a moderator
+	ErrNotModeratorInLobby = errors.New("room is in lobby mode but user is not a moderator")
+	// ErrUnexpectedReturnCode is returned when the server did not respond with an expected return code
+	ErrUnexpectedReturnCode = errors.New("unexpected return code")
+)
+
 // TalkRoom represents a room in Nextcloud Talk
 type TalkRoom struct {
 	User  *user.TalkUser
@@ -51,7 +62,7 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 		return nil, err
 	}
 	if res.StatusCode() != 201 {
-		return nil, errors.New("unexpected return code")
+		return nil, ErrUnexpectedReturnCode
 	}
 	var msgInfo struct {
 		OCS ocs.TalkRoomSentResponse `json:"ocs"`
@@ -63,6 +74,10 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 // ReceiveMessages starts watching for new messages
 func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessageData, error) {
 	c := make(chan ocs.TalkRoomMessageData)
+	err := t.TestConnection()
+	if err != nil {
+		return nil, err
+	}
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
 		"lookIntoFuture":   "1",
@@ -121,6 +136,9 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 
 // TestConnection tests the connection with the Nextcloud Talk instance and returns an error if it could not connect
 func (t *TalkRoom) TestConnection() error {
+	if t.Token == "" {
+		return ErrEmptyToken
+	}
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token
 	requestParam := map[string]string{
 		"lookIntoFuture":   "0",
@@ -142,9 +160,9 @@ func (t *TalkRoom) TestConnection() error {
 	case 304:
 		return nil
 	case 404:
-		return errors.New("room could not be found")
+		return ErrRoomNotFound
 	case 412:
-		return errors.New("room is in lobby mode but user is not a moderator")
+		return ErrNotModeratorInLobby
 	}
-	return errors.New("unknown return code")
+	return ErrUnexpectedReturnCode
 }
