@@ -21,6 +21,8 @@ import (
 
 // NewUser returns a TalkUser instance
 // The url should be the full URL of the Nextcloud instance (e.g. https://cloud.mydomain.me)
+//
+// Deprecated: Use user.NewUser instead for more options and error checks
 func NewUser(url string, username string, password string) *user.TalkUser {
 	return &user.TalkUser{
 		NextcloudURL: url,
@@ -32,26 +34,11 @@ func NewUser(url string, username string, password string) *user.TalkUser {
 // NewRoom returns a new TalkRoom instance
 // Token should be the Nextcloud Room Token (e.g. "d6zoa2zs" if the room URL is https://cloud.mydomain.me/call/d6zoa2zs)
 //
-// Deprecated: Use NewTalkRoom instead for extra error checks.
+// Deprecated: Use room.NewRoom instead for extra error checks.
 func NewRoom(tuser *user.TalkUser, token string) *room.TalkRoom {
 	tr := &room.TalkRoom{
 		User:  tuser,
 		Token: token,
 	}
 	return tr
-}
-
-// NewTalkRoom returns a new TalkRoom instance
-// Token should be the Nextcloud Room Token (e.g. "d6zoa2zs" if the room URL is https://cloud.mydomain.me/call/d6zoa2zs)
-func NewTalkRoom(tuser *user.TalkUser, token string) (*room.TalkRoom, error) {
-	if token == "" {
-		return nil, room.ErrEmptyToken
-	}
-	if tuser == nil {
-		return nil, user.ErrUserIsNil
-	}
-	return &room.TalkRoom{
-		User:  tuser,
-		Token: token,
-	}, nil
 }

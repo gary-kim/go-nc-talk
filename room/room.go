@@ -45,6 +45,21 @@ type TalkRoom struct {
 	Token string
 }
 
+// NewTalkRoom returns a new TalkRoom instance
+// Token should be the Nextcloud Room Token (e.g. "d6zoa2zs" if the room URL is https://cloud.mydomain.me/call/d6zoa2zs)
+func NewTalkRoom(tuser *user.TalkUser, token string) (*TalkRoom, error) {
+	if token == "" {
+		return nil, ErrEmptyToken
+	}
+	if tuser == nil {
+		return nil, user.ErrUserIsNil
+	}
+	return &TalkRoom{
+		User:  tuser,
+		Token: token,
+	}, nil
+}
+
 // SendMessage sends a message in the Talk room
 func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token

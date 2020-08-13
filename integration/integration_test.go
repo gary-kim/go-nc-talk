@@ -6,7 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	talk "gomod.garykim.dev/nc-talk"
+	"gomod.garykim.dev/nc-talk/room"
+	"gomod.garykim.dev/nc-talk/user"
 )
 
 var instance = flag.String("instance", "", "Nextcloud instance to test against")
@@ -17,8 +18,11 @@ var token = flag.String("token", "", "Nextcloud instance talk room to test again
 func TestConnection(t *testing.T) {
 	checkFlagsSet(t)
 
-	tuser := talk.NewUser(*instance, *username, *password)
-	troom, err := talk.NewTalkRoom(tuser, *token)
+	tuser, err := user.NewUser(*instance, *username, *password, &user.TalkUserConfig{})
+
+	assert.NoError(t, err)
+
+	troom, err := room.NewTalkRoom(tuser, *token)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, troom)

@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"gomod.garykim.dev/nc-talk/room"
 )
 
 func TestNewTalkRoom(t *testing.T) {
@@ -18,7 +20,7 @@ func TestNewTalkRoom(t *testing.T) {
 		{"h6xo3ba9", true},
 		{"", false},
 	} {
-		tr, err := NewTalkRoom(NewUser(url, username, password), test.token)
+		tr, err := room.NewTalkRoom(NewUser(url, username, password), test.token)
 		if test.ok {
 			assert.NoError(t, err, "Test %d: NewTalkRoom error is not nil", i)
 			assert.NotNil(t, tr, "Test %d: NewTalkRoom return is nil", i)
