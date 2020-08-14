@@ -16,7 +16,6 @@ package room
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"time"
@@ -79,10 +78,10 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 	if res.StatusCode() != 201 {
 		return nil, ErrUnexpectedReturnCode
 	}
-	var msgInfo struct {
-		OCS ocs.TalkRoomSentResponse `json:"ocs"`
+	msgInfo, err := ocs.TalkRoomSentResponseUnmarshal(&res.Data)
+	if err != nil {
+		return nil, err
 	}
-	err = json.Unmarshal(res.Data, &msgInfo)
 	return &msgInfo.OCS.TalkRoomMessage, err
 }
 
@@ -129,14 +128,11 @@ func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessag
 			}
 			if res.StatusCode == 200 {
 				lastKnown = res.Header.Get("X-Chat-Last-Given")
-				var message struct {
-					OCS ocs.TalkRoomMessage `json:"ocs"`
-				}
 				data, err := ioutil.ReadAll(res.Body)
 				if err != nil {
 					continue
 				}
-				err = json.Unmarshal(data, &message)
+				message, err := ocs.TalkRoomMessageDataUnmarshal(&data)
 				if err != nil {
 					continue
 				}
