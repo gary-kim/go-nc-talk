@@ -15,6 +15,7 @@
 package ocs
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -41,6 +42,11 @@ type TalkRoomMessageData struct {
 	SystemMessage     string                      `json:"systemMessage"`
 	Timestamp         int                         `json:"timestamp"`
 	MessageType       MessageType                 `json:"messageType"`
+	MessageParameters map[string]RichObjectString `json:"-"`
+}
+
+// talkRoomMessageParameters is used to unmarshal only MessageParameters
+type talkRoomMessageParameters struct {
 	MessageParameters map[string]RichObjectString `json:"messageParameters"`
 }
 
@@ -59,12 +65,78 @@ func (m *TalkRoomMessageData) PlainMessage() string {
 
 // TalkRoomMessage describes an ocs response for a Talk room message
 type TalkRoomMessage struct {
+	OCS talkRoomMessage `json:"ocs"`
+}
+
+type talkRoomMessage struct {
 	ocs
 	TalkRoomMessage []TalkRoomMessageData `json:"data"`
 }
 
+// TalkRoomMessageDataUnmarshal unmarshals given ocs request data and returns a TalkRoomMessageData
+func TalkRoomMessageDataUnmarshal(data *[]byte) (*TalkRoomMessage, error) {
+	message := &TalkRoomMessage{}
+	err := json.Unmarshal(*data, message)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get RCS
+	var rcs struct {
+		OCS struct {
+			ocs
+			TalkRoomMessage []talkRoomMessageParameters `json:"data"`
+		} `json:"ocs"`
+	}
+	err = json.Unmarshal(*data, &rcs)
+	// There is no RCS data
+	if err != nil {
+		for i := range message.OCS.TalkRoomMessage {
+			message.OCS.TalkRoomMessage[i].MessageParameters = map[string]RichObjectString{}
+		}
+		return message, nil
+	}
+
+	// There is RCS data
+	for i := range message.OCS.TalkRoomMessage {
+		message.OCS.TalkRoomMessage[i].MessageParameters = rcs.OCS.TalkRoomMessage[i].MessageParameters
+	}
+	return message, nil
+}
+
 // TalkRoomSentResponse describes an ocs response for what is returned when a message is sent
 type TalkRoomSentResponse struct {
+	OCS talkRoomSentResponse `json:"ocs"`
+}
+
+type talkRoomSentResponse struct {
 	ocs
 	TalkRoomMessage TalkRoomMessageData `json:"data"`
+}
+
+// TalkRoomSentResponseUnmarshal unmarshals given ocs request data and returns a TalkRoomMessageData
+func TalkRoomSentResponseUnmarshal(data *[]byte) (*TalkRoomSentResponse, error) {
+	message := &TalkRoomSentResponse{}
+	err := json.Unmarshal(*data, message)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get RCS
+	var rcs struct {
+		OCS struct {
+			ocs
+			TalkRoomMessage talkRoomMessageParameters `json:"data"`
+		} `json:"ocs"`
+	}
+	err = json.Unmarshal(*data, &rcs)
+	// There is no RCS data
+	if err != nil {
+		message.OCS.TalkRoomMessage.MessageParameters = map[string]RichObjectString{}
+		return message, nil
+	}
+
+	// There is RCS data
+	message.OCS.TalkRoomMessage.MessageParameters = rcs.OCS.TalkRoomMessage.MessageParameters
+	return message, nil
 }
