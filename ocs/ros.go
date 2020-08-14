@@ -18,11 +18,11 @@ package ocs
 
 // RichObjectString describes the content of placeholders in TalkRoomMessageData
 type RichObjectString struct {
-	Type string `json:"type"`
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Link string `json:"link"`
+	Type RichObjectStringType `json:"type"`
+	ID   string               `json:"id"`
+	Name string               `json:"name"`
+	Path string               `json:"path"`
+	Link string               `json:"link"`
 }
 
 // RichObjectStringType describes what a rich object string is describing
