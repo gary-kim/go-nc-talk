@@ -22,7 +22,7 @@ import (
 // NewUser returns a TalkUser instance
 // The url should be the full URL of the Nextcloud instance (e.g. https://cloud.mydomain.me)
 //
-// Deprecated: Use user.NewUser instead for more options and error checks
+// Deprecated: Use user.NewTalkUser instead for more options and error checks
 func NewUser(url string, username string, password string) *user.TalkUser {
 	return &user.TalkUser{
 		NextcloudURL: url,
