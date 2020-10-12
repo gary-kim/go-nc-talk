@@ -34,6 +34,8 @@ const (
 var (
 	// ErrUserIsNil is returned when a funciton is called with an nil user.
 	ErrUserIsNil = errors.New("user is nil")
+	// ErrUnexpectedReturnCode is returned when the remote server returns an unexpected return code
+	ErrUnexpectedReturnCode = errors.New("unexpeted return code")
 )
 
 // TalkUser represents a user of Nextcloud Talk
@@ -260,9 +262,12 @@ func (t *TalkUser) DownloadFile(path string) (data *[]byte, err error) {
 		URL: url,
 	})
 	res, err := c.Do()
-	if err != nil || res.StatusCode() != 200 {
+	if err != nil {
 		return
 	}
 	data = &res.Data
+	if data != nil {
+		err = ErrUnexpectedReturnCode
+	}
 	return
 }
