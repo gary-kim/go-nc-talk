@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.5](https://github.com/gary-kim/go-nc-talk/tree/v0.1.5) - 2020-10-12
+
+[Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.4...v0.1.5)
+
+### Fixed
+
+- fix: RemoteDavEndpoint incorrect [\#29](https://github.com/gary-kim/go-nc-talk/pull/29) ([@gary-kim](https://github.com/gary-kim))
+- fix: type in deprecation message [\#26](https://github.com/gary-kim/go-nc-talk/pull/26) ([@gary-kim](https://github.com/gary-kim))
+- Fix entrypoint URL double slashes \#22 [\#25](https://github.com/gary-kim/go-nc-talk/pull/25) ([@u5surf](https://github.com/u5surf))
+
+### Dependencies
+
+- chore\(deps\): update golang docker tag to v1.15 [\#24](https://github.com/gary-kim/go-nc-talk/pull/24) ([@gary-kim-bot](https://github.com/gary-kim-bot))
+
 ## [v0.1.4](https://github.com/gary-kim/go-nc-talk/tree/v0.1.4) - 2020-09-22
 
 [Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.3...v0.1.4)
