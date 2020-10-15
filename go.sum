@@ -4,6 +4,8 @@ github.com/monaco-io/request v1.0.3 h1:FsiIwXCCbHEyWx9A7lgg6JBTMHhHlEEsADsgAOvZ9
 github.com/monaco-io/request v1.0.3/go.mod h1:EmggwHktBsbJmCgwZXqy7o0H1NNsAstQBWZrFVd3xtQ=
 github.com/monaco-io/request v1.0.4 h1:AbogA+IvPOWqyGZIFU7kSb8YS2Jv5Dnl5ncMj8cQV+o=
 github.com/monaco-io/request v1.0.4/go.mod h1:EmggwHktBsbJmCgwZXqy7o0H1NNsAstQBWZrFVd3xtQ=
+github.com/monaco-io/request v1.0.5 h1:QAJb5m1pCPZUGv3zzTZn7GlQI3q+uJWi7fH9QxDGbm4=
+github.com/monaco-io/request v1.0.5/go.mod h1:EmggwHktBsbJmCgwZXqy7o0H1NNsAstQBWZrFVd3xtQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
