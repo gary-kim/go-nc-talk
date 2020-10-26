@@ -118,7 +118,7 @@ type RoomInfo struct {
 // The url should be the full URL of the Nextcloud instance (e.g. https://cloud.mydomain.me)
 func NewUser(url string, username string, password string, config *TalkUserConfig) (*TalkUser, error) {
 	return &TalkUser{
-		NextcloudURL: url,
+		NextcloudURL: strings.TrimSuffix(url, "/"),
 		User:         username,
 		Pass:         password,
 		Config:       config,
@@ -143,7 +143,11 @@ func (t *TalkUser) RequestClient(client request.Client) *request.Client {
 
 	// Set Nextcloud URL if there is no host
 	if !strings.HasPrefix(client.URL, t.NextcloudURL) {
-		client.URL = t.NextcloudURL + "/" + client.URL
+		if strings.HasPrefix(client.URL, "/") {
+			client.URL = t.NextcloudURL + client.URL
+		} else {
+			client.URL = t.NextcloudURL + "/" + client.URL
+		}
 	}
 
 	// Set TLS Config
