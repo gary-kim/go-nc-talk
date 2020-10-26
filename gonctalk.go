@@ -15,6 +15,8 @@
 package talk
 
 import (
+	"strings"
+
 	"gomod.garykim.dev/nc-talk/room"
 	"gomod.garykim.dev/nc-talk/user"
 )
@@ -25,7 +27,7 @@ import (
 // Deprecated: Use user.NewTalkUser instead for more options and error checks
 func NewUser(url string, username string, password string) *user.TalkUser {
 	return &user.TalkUser{
-		NextcloudURL: url,
+		NextcloudURL: strings.TrimSuffix(url, "/"),
 		User:         username,
 		Pass:         password,
 	}
