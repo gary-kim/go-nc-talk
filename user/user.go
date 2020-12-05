@@ -87,31 +87,31 @@ type Capabilities struct {
 
 // RoomInfo contains information about a room
 type RoomInfo struct {
-	Token                 string                  `json:"token"`
-	Name                  string                  `json:"name"`
-	DisplayName           string                  `json:"displayName"`
-	SessionID             string                  `json:"sessionId"`
-	ObjectType            string                  `json:"objectType"`
-	ObjectID              string                  `json:"objectId"`
-	Type                  int                     `json:"type"`
-	ParticipantType       int                     `json:"participantType"`
-	ParticipantFlags      int                     `json:"participantFlags"`
-	ReadOnly              int                     `json:"readOnly"`
-	LastPing              int                     `json:"lastPing"`
-	LastActivity          int                     `json:"lastActivity"`
-	NotificationLevel     int                     `json:"notificationLevel"`
-	LobbyState            int                     `json:"lobbyState"`
-	LobbyTimer            int                     `json:"lobbyTimer"`
-	UnreadMessages        int                     `json:"unreadMessages"`
-	LastReadMessage       int                     `json:"lastReadMessage"`
-	HasPassword           bool                    `json:"hasPassword"`
-	HasCall               bool                    `json:"hasCall"`
-	CanStartCall          bool                    `json:"canStartCall"`
-	CanDeleteConversation bool                    `json:"canDeleteConversation"`
-	CanLeaveConversation  bool                    `json:"canLeaveConversation"`
-	IsFavorite            bool                    `json:"isFavorite"`
-	UnreadMention         bool                    `json:"unreadMention"`
-	LastMessage           ocs.TalkRoomMessageData `json:"lastMessage"`
+	Token                 string                   `json:"token"`
+	Name                  string                   `json:"name"`
+	DisplayName           string                   `json:"displayName"`
+	SessionID             string                   `json:"sessionId"`
+	ObjectType            string                   `json:"objectType"`
+	ObjectID              string                   `json:"objectId"`
+	Type                  int                      `json:"type"`
+	ParticipantType       int                      `json:"participantType"`
+	ParticipantFlags      int                      `json:"participantFlags"`
+	ReadOnly              int                      `json:"readOnly"`
+	LastPing              int                      `json:"lastPing"`
+	LastActivity          int                      `json:"lastActivity"`
+	NotificationLevel     int                      `json:"notificationLevel"`
+	LobbyState            int                      `json:"lobbyState"`
+	LobbyTimer            int                      `json:"lobbyTimer"`
+	UnreadMessages        int                      `json:"unreadMessages"`
+	LastReadMessage       int                      `json:"lastReadMessage"`
+	HasPassword           bool                     `json:"hasPassword"`
+	HasCall               bool                     `json:"hasCall"`
+	CanStartCall          bool                     `json:"canStartCall"`
+	CanDeleteConversation bool                     `json:"canDeleteConversation"`
+	CanLeaveConversation  bool                     `json:"canLeaveConversation"`
+	IsFavorite            bool                     `json:"isFavorite"`
+	UnreadMention         bool                     `json:"unreadMention"`
+	LastMessage           *ocs.TalkRoomMessageData `json:"lastMessage"`
 }
 
 // NewUser returns a TalkUser instance
