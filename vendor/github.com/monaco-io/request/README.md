@@ -18,7 +18,6 @@ No 3rd dependency.
 ## Features
 
 - Make [http](https://golang.org) requests from Golang
-- Intercept request and response
 - Transform request and response data
 
 ## Installing
@@ -42,37 +41,12 @@ go get github.com/monaco-io/request
 
 ## Example
 
-### GET
-
-```go
-package main
-
-import (
-    "log"
-
-    "github.com/monaco-io/request"
-)
-
-func main() {
-    client := request.Client{
-        URL:    "https://google.com",
-        Method: "GET",
-        Params: map[string]string{"hello": "world"},
-    }
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
-}
-```
-
 ### POST
 
 ```go
 package main
 
 import (
-    "log"
-
     "github.com/monaco-io/request"
 )
 
@@ -80,36 +54,38 @@ func main() {
     client := request.Client{
         URL:    "https://google.com",
         Method: "POST",
-        Params: map[string]string{"hello": "world"},
-        Body:   []byte(`{"hello": "world"}`),
+        Query: map[string]string{"hello": "world"},
+        JSON:   []byte(`{"hello": "world"}`),
     }
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
-}
+    var result interface{}
+    resp := client.Send()
+    err := resp.Scan(&result).Error()
+    str := resp.String()
+    bytes := resp.Bytes()
+    ...
 ```
 
-### Content-Type
+### POST with empty request
 
 ```go
 package main
 
 import (
-    "log"
-
     "github.com/monaco-io/request"
 )
 
 func main() {
-    client := request.Client{
-        URL:         "https://google.com",
-        Method:      "POST",
-        ContentType: request.ApplicationXWwwFormURLEncoded, // default is "application/json"
-    }
-    resp, err := client.Do()
+    var data interface{}
 
-    log.Println(resp.Code, string(resp.Data), err)
-}
+    resp := request.
+        New().
+        POST("http://httpbin.org/post").
+        AddHeader(map[string]string{"Google": "google"}).
+        AddBasicAuth("google", "google").
+        AddURLEncodedForm(map[string]string{"data": "google"}).
+        Send().
+        Scan(&data)
+    ...
 ```
 
 ### Authorization
@@ -118,8 +94,6 @@ func main() {
 package main
 
 import (
-    "log"
-
     "github.com/monaco-io/request"
 )
 
@@ -130,12 +104,8 @@ func main() {
         BasicAuth: request.BasicAuth{
             Username:"user_xxx",
             Password:"pwd_xxx",
-        }, // xxx:xxx
+        },
     }
-
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
 }
 ```
 
@@ -145,8 +115,6 @@ func main() {
 package main
 
 import (
-    "log"
-
     "github.com/monaco-io/request"
 )
 
@@ -154,12 +122,8 @@ func main() {
     client := request.Client{
         URL:       "https://google.com",
         Method:    "POST",
-        Timeout:   10, // seconds
+        Timeout:   time.Second*10,
     }
-
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
 }
 ```
 
@@ -169,28 +133,18 @@ func main() {
 package main
 
 import (
-    "log"
-
     "github.com/monaco-io/request"
 )
 
 func main() {
     client := request.Client{
         URL:       "https://google.com",
-        Cookies:[]*http.Cookie{
-             {
-              Name:  "cookie_name",
-              Value: "cookie_value",
-             },
-        },
+        CookiesMap: map[string]string{
+            "cookie_name": "cookie_value",
+        }
     }
-
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
 }
 ```
-
 
 ### TLS
 
@@ -198,8 +152,6 @@ func main() {
 package main
 
 import (
-    "log"
-    "crypto/tls"
 
     "github.com/monaco-io/request"
 )
@@ -209,10 +161,6 @@ func main() {
         URL:       "https://google.com",
         TLSConfig: &tls.Config{InsecureSkipVerify: true},
     }
-
-    resp, err := client.Do()
-
-    log.Println(resp.Code, string(resp.Data), err)
 }
 ```
 
