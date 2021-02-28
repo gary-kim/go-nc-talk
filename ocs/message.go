@@ -35,6 +35,12 @@ const (
 	// MessageCommand is a Nextcloud Talk message that is a command
 	MessageCommand MessageType = "command"
 
+	// MessageDelete is a Nextcloud Talk message indicating a message that was deleted
+	//
+	// If a message has been deleted, a message of MessageType MessageSystem is
+	// sent through the channel for which the parent message's MessageType is MessageDelete.
+	MessageDelete MessageType = "comment_deleted"
+
 	// ActorUser is a Nextcloud Talk message sent by a user
 	ActorUser ActorType = "users"
 
@@ -55,6 +61,8 @@ type TalkRoomMessageData struct {
 	SystemMessage     string                      `json:"systemMessage"`
 	Timestamp         int                         `json:"timestamp"`
 	MessageType       MessageType                 `json:"messageType"`
+	Deleted           bool                        `json:"deleted"`
+	Parent            *TalkRoomMessageData        `json:"parent"`
 	MessageParameters map[string]RichObjectString `json:"-"`
 }
 
