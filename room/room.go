@@ -86,6 +86,27 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 	return &msgInfo.OCS.TalkRoomMessage, err
 }
 
+// DeleteMessage deletes the message with the given messageID on the server.
+//
+// Requires "chat-read-status" capability on the Nextcloud Talk server
+func (t *TalkRoom) DeleteMessage(messageID string) (*ocs.TalkRoomMessageData, error) {
+	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token + "/" + messageID
+
+	client := t.User.RequestClient(request.Client{
+		URL:    url,
+		Method: "DELETE",
+	})
+	res, err := client.Do()
+	if err != nil {
+		return nil, err
+	}
+	msgInfo, err := ocs.TalkRoomMessageDataUnmarshal(&res.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &msgInfo.OCS.TalkRoomMessage[0], nil
+}
+
 // ReceiveMessages starts watching for new messages
 func (t *TalkRoom) ReceiveMessages(ctx context.Context) (chan ocs.TalkRoomMessageData, error) {
 	c := make(chan ocs.TalkRoomMessageData)
