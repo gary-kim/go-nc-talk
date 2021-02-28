@@ -88,7 +88,7 @@ func (t *TalkRoom) SendMessage(msg string) (*ocs.TalkRoomMessageData, error) {
 
 // DeleteMessage deletes the message with the given messageID on the server.
 //
-// Requires "chat-read-status" capability on the Nextcloud Talk server
+// Requires "delete-messages" capability on the Nextcloud Talk server
 func (t *TalkRoom) DeleteMessage(messageID string) (*ocs.TalkRoomMessageData, error) {
 	url := t.User.NextcloudURL + constants.BaseEndpoint + "/chat/" + t.Token + "/" + messageID
 
