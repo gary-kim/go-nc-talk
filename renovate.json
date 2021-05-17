@@ -11,6 +11,6 @@
   ],
   "rangeStrategy": "bump",
   "semanticCommits": true,
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dashboard"
+  "masterIssue": true,
+  "masterIssueTitle": "Renovate Dashboard"
 }
