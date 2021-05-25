@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.0](https://github.com/gary-kim/go-nc-talk/tree/v0.2.0) - 2021-05-25
+
+[Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.7...v0.2.0)
+
+### Added
+
+- Add capabilities and make compatible with Talk 12.0 [\#45](https://github.com/gary-kim/go-nc-talk/pull/45) ([@gary-kim](https://github.com/gary-kim))
+- feature: add delete support [\#41](https://github.com/gary-kim/go-nc-talk/pull/41) ([@gary-kim](https://github.com/gary-kim))
+
+### Fixed
+
+- fix: Renovate config [\#43](https://github.com/gary-kim/go-nc-talk/pull/43) ([@gary-kim](https://github.com/gary-kim))
+
+### Dependencies
+
+- chore\(deps\): update golang docker tag to v1.16 [\#40](https://github.com/gary-kim/go-nc-talk/pull/40) ([@gary-kim-bot](https://github.com/gary-kim-bot))
+- chore\(deps\): update module stretchr/testify to v1.7.0 [\#38](https://github.com/gary-kim/go-nc-talk/pull/38) ([@gary-kim-bot](https://github.com/gary-kim-bot))
+
+## [v0.1.7](https://github.com/gary-kim/go-nc-talk/tree/v0.1.7) - 2020-12-05
+
+[Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.5...v0.1.7)
+
+### Fixed
+
+- Trim slash from end of NextcloudURL [\#31](https://github.com/gary-kim/go-nc-talk/pull/31) ([@gary-kim](https://github.com/gary-kim))
+- Last message can be empty [\#32](https://github.com/gary-kim/go-nc-talk/pull/32) ([@gary-kim](https://github.com/gary-kim))
+
 ## [v0.1.5](https://github.com/gary-kim/go-nc-talk/tree/v0.1.5) - 2020-10-12
 
 [Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.4...v0.1.5)
