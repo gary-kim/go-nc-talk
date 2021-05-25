@@ -33,7 +33,7 @@ const (
 )
 
 var (
-	// ErrUserIsNil is returned when a funciton is called with an nil user.
+	// ErrUserIsNil is returned when a function is called with an nil user.
 	ErrUserIsNil = errors.New("user is nil")
 
 	// ErrCannotDownloadFile is returned when a function cannot download the requested file
