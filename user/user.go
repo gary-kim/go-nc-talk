@@ -100,6 +100,8 @@ type Capabilities struct {
 	ConversationCallFlags  bool `ocscapability:"conversation-call-flags"`
 	GeoLocationSharing     bool `ocscapability:"geo-location-sharing"`
 	ReadPrivacyConfig      bool `ocscapability:"config => chat => read-privacy"`
+	SignalingV3            bool `ocscapability:"signaling-v3"`
+	TempUserAvatarAPI      bool `ocscapability:"temp-user-avatar-api"`
 	MaxGifSizeConfig       int  `ocscapability:"config => previews => max-gif-size"`
 }
 
@@ -280,6 +282,8 @@ func (t *TalkUser) Capabilities() (*Capabilities, error) {
 		RichObjectSharing:      sliceContains(sc.Features, "rich-object-sharing"),
 		ConversationCallFlags:  sliceContains(sc.Features, "conversation-call-flags"),
 		GeoLocationSharing:     sliceContains(sc.Features, "geo-location-sharing"),
+		SignalingV3:            sliceContains(sc.Features, "signaling-v3"),
+		TempUserAvatarAPI:      sliceContains(sc.Features, "temp-user-avatar-api"),
 	}
 
 	t.capabilities = tr
