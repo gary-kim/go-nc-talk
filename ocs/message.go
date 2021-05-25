@@ -39,6 +39,9 @@ const (
 	//
 	// If a message has been deleted, a message of MessageType MessageSystem is
 	// sent through the channel for which the parent message's MessageType is MessageDelete.
+	// So, in order to check if a new message is a message deletion request, a check
+	// like this can be used:
+	// msg.MessageType == ocs.MessageSystem && msg.Parent != nil && msg.Parent.MessageType == ocs.MessageDelete
 	MessageDelete MessageType = "comment_deleted"
 
 	// ActorUser is a Nextcloud Talk message sent by a user
