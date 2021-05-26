@@ -181,11 +181,11 @@ func (t *TalkUser) RequestClient(client request.Client) *request.Client {
 // GetRooms returns a list of all rooms the user is in
 func (t *TalkUser) GetRooms() (*[]RoomInfo, error) {
 	endpoint := ocsRoomsv2Endpoint
-	cap, err := t.Capabilities()
+	capabilities, err := t.Capabilities()
 	if err != nil {
 		return nil, err
 	}
-	if cap.ConversationV4 {
+	if capabilities.ConversationV4 {
 		endpoint = ocsRoomsv4Endpoint
 	}
 
