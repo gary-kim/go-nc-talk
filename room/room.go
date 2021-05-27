@@ -46,6 +46,8 @@ var (
 	ErrLackingCapabilities = errors.New("lacking required capabilities")
 	// ErrForbidden is returned if the user is forbidden from accessing the requested resource
 	ErrForbidden = errors.New("request forbidden")
+	// ErrUnexpectedResponse is returned if the response from the Nextcloud Talk server is not formatted as expected
+	ErrUnexpectedResponse = errors.New("unexpected response")
 )
 
 // TalkRoom represents a room in Nextcloud Talk
@@ -118,9 +120,15 @@ func (t *TalkRoom) DeleteMessage(messageID int) (*ocs.TalkRoomMessageData, error
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode() != http.StatusOK && res.StatusCode() != http.StatusAccepted {
+		return nil, ErrUnexpectedReturnCode
+	}
 	msgInfo, err := ocs.TalkRoomMessageDataUnmarshal(&res.Data)
 	if err != nil {
 		return nil, err
+	}
+	if len(msgInfo.OCS.TalkRoomMessage) == 0 {
+		return nil, ErrUnexpectedResponse
 	}
 	return &msgInfo.OCS.TalkRoomMessage[0], nil
 }
