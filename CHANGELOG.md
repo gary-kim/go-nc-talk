@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.1](https://github.com/gary-kim/go-nc-talk/tree/v0.2.1) - 2021-05-27
+
+[Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.2.0...v0.2.1)
+
+### Added
+
+- enh: support StatusForbidden response during message fetch [\#47](https://github.com/gary-kim/go-nc-talk/pull/47) ([@gary-kim](https://github.com/gary-kim))
+
+### Fixed
+
+- fix: ensure program doesn't crash when delete fails [\#51](https://github.com/gary-kim/go-nc-talk/pull/51) ([@gary-kim](https://github.com/gary-kim))
+- fix: remove conflict with built-in function [\#48](https://github.com/gary-kim/go-nc-talk/pull/48) ([@gary-kim](https://github.com/gary-kim))
+- fix: add annotation for ChatMaxLength capability [\#46](https://github.com/gary-kim/go-nc-talk/pull/46) ([@gary-kim](https://github.com/gary-kim))
+
 ## [v0.2.0](https://github.com/gary-kim/go-nc-talk/tree/v0.2.0) - 2021-05-25
 
 [Full Changelog](https://github.com/gary-kim/go-nc-talk/compare/v0.1.7...v0.2.0)
