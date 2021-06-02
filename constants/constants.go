@@ -15,8 +15,14 @@
 package constants
 
 const (
+	// OCSBaseEndpoint is the base OCS api endpoint for Nextcloud
+	OCSBaseEndpoint = "/ocs/v2.php/"
+
 	// BaseEndpoint is the api endpoint for Nextcloud Talk
-	BaseEndpoint = "/ocs/v2.php/apps/spreed/api/v1/"
+	BaseEndpoint = OCSBaseEndpoint + "apps/spreed/api/v1/"
+
+	// FilesSharingEndpoint is the api endpoint for the Nextcloud files_sharing app
+	FilesSharingEndpoint = OCSBaseEndpoint + "apps/files_sharing/api/v1/"
 )
 
 // RemoteDavEndpoint returns the endpoint for the Dav API for Nextcloud
