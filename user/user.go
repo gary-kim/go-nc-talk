@@ -18,9 +18,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/monaco-io/request"
+	"github.com/studio-b12/gowebdav"
 
 	"gomod.garykim.dev/nc-talk/constants"
 	"gomod.garykim.dev/nc-talk/ocs"
@@ -46,7 +48,9 @@ type TalkUser struct {
 	Pass         string
 	NextcloudURL string
 	Config       *TalkUserConfig
+
 	capabilities *Capabilities
+	webdavclient *gowebdav.Client
 }
 
 // TalkUserConfig is configuration options for TalkUsers
@@ -312,7 +316,7 @@ func (t *TalkUser) DownloadFile(path string) (data *[]byte, err error) {
 	if err != nil {
 		return
 	}
-	if res.StatusCode() != 200 {
+	if res.StatusCode() != http.StatusOK {
 		err = ErrCannotDownloadFile
 		return
 	}
