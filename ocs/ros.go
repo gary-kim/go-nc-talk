@@ -324,4 +324,105 @@ func (r *ROSGeoLocation) ToJSON() ([]byte, error) {
 	return json.Marshal(r)
 }
 
+type ROSOpenGraph struct {
+	// ID is the id used to identify the open graphs data on the instance
+	ID string `json:"id"`
+	// Name is the open graph title of the website
+	Name string `json:"name"`
+	// Description is the open graph description from the website
+	Description string `json:"description"`
+	// Thumb is the full URL of the open graph thumbnail
+	Thumb string `json:"thumb"`
+	// Website is the name of the described website
+	Website string `json:"website"`
+	// Link is the full link to the website
+	Link string `json:"link"`
+}
+
+func (r *ROSOpenGraph) ObjectType() string {
+	return "open-graph"
+}
+
+func (r *ROSOpenGraph) ToJSON() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type ROSPendingFederatedShare struct {
+	// ID is used to identify the federated share on the instance
+	ID string `json:"id"`
+	// Name is the name of the shared item which should be used in the visual representation
+	Name string `json:"name"`
+}
+
+func (r *ROSPendingFederatedShare) ObjectType() string {
+	return "pending-federated-share"
+}
+
+func (r *ROSPendingFederatedShare) ToJSON() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type ROSSystemTag struct {
+	// ID is the id used to identify the systemtag on the instance
+	ID string `json:"id"`
+	// Name is the display name of the systemtag which should be used in the visual representation
+	Name string `json:"name"`
+	// Visibility indicates whether the user can see the system tag. Should be "1" for yes and "0" for no
+	Visibility string `json:"visibility"`
+	// Assignable is if the user can assign the systemtag
+	Assignable string `json:"assignable"`
+}
+
+func (r *ROSSystemTag) ObjectType() string {
+	return "systemtag"
+}
+
+func (r *ROSSystemTag) ToJSON() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type ROSTalkAttachment struct {
+	// ID is the id used to identify the attachment on the instance
+	ID string `json:"id"`
+	// Name is the name of the attachment
+	Name string `json:"name"`
+	// Conversation is the token of the conversation
+	Conversation string `json:"conversation"`
+	// MimeType is the mimetype of the file/folder to allow client to show a placeholder
+	MimeType string `json:"mimetype"`
+	// PreviewAvailable is whether or not a preview is available. If "no", the mimetype icon should be used
+	PreviewAvailable string `json:"preview-available"`
+}
+
+func (r *ROSTalkAttachment) ObjectType() string {
+	return "talk-attachment"
+}
+
+func (r *ROSTalkAttachment) ToJSON() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type ROSUser struct {
+	// ID is the id used to identify the user on the instance
+	ID string `json:"id"`
+	// Name is the display name of the user which should be used in the visual representation
+	Name string `json:"name"`
+	// Server is the URL of the instance the user lives on
+	Server string `json:"server"`
+}
+
+func (r *ROSUser) ObjectType() string {
+	return "user"
+}
+
+func (r *ROSUser) ToJSON() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type ROSUserGroup struct {
+	// ID is the id used to identify the group on the instance
+	ID string `json:"id"`
+	// Name is the display name of the group which should be used in the visual representation
+	Name string `json:"name"`
+}
 
