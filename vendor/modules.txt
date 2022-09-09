@@ -8,7 +8,7 @@ github.com/pmezard/go-difflib/difflib
 github.com/stretchr/testify/assert
 # github.com/studio-b12/gowebdav v0.0.0-20210427212133-86f8378cf140
 github.com/studio-b12/gowebdav
-# golang.org/x/net v0.0.0-20210525063256-abc453219eb5
+# golang.org/x/net v0.0.0-20220909164309-bea034e7d591
 golang.org/x/net/webdav
 golang.org/x/net/webdav/internal/xml
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
