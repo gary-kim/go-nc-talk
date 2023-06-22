@@ -3,36 +3,14 @@ package gowebdav
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func log(msg interface{}) {
-	fmt.Println(msg)
-}
-
-func newPathError(op string, path string, statusCode int) error {
-	return &os.PathError{
-		Op:   op,
-		Path: path,
-		Err:  fmt.Errorf("%d", statusCode),
-	}
-}
-
-func newPathErrorErr(op string, path string, err error) error {
-	return &os.PathError{
-		Op:   op,
-		Path: path,
-		Err:  err,
-	}
-}
-
-// PathEscape escapes all segemnts of a given path
+// PathEscape escapes all segments of a given path
 func PathEscape(path string) string {
 	s := strings.Split(path, "/")
 	for i, e := range s {
@@ -51,9 +29,10 @@ func FixSlash(s string) string {
 
 // FixSlashes appends and prepends a / if they are missing
 func FixSlashes(s string) string {
-	if s[0] != '/' {
+	if !strings.HasPrefix(s, "/") {
 		s = "/" + s
 	}
+
 	return FixSlash(s)
 }
 
@@ -106,4 +85,29 @@ func parseXML(data io.Reader, resp interface{}, parse func(resp interface{}) err
 		}
 	}
 	return nil
+}
+
+// limitedReadCloser wraps a io.ReadCloser and limits the number of bytes that can be read from it.
+type limitedReadCloser struct {
+	rc        io.ReadCloser
+	remaining int
+}
+
+func (l *limitedReadCloser) Read(buf []byte) (int, error) {
+	if l.remaining <= 0 {
+		return 0, io.EOF
+	}
+
+	if len(buf) > l.remaining {
+		buf = buf[0:l.remaining]
+	}
+
+	n, err := l.rc.Read(buf)
+	l.remaining -= n
+
+	return n, err
+}
+
+func (l *limitedReadCloser) Close() error {
+	return l.rc.Close()
 }
