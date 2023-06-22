@@ -3,15 +3,17 @@ package gowebdav
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	pathpkg "path"
 	"strings"
-	"sync"
 	"time"
 )
+
+const XInhibitRedirect = "X-Gowebdav-Inhibit-Redirect"
 
 // Client defines our structure
 type Client struct {
@@ -19,47 +21,28 @@ type Client struct {
 	headers     http.Header
 	interceptor func(method string, rq *http.Request)
 	c           *http.Client
-
-	authMutex sync.Mutex
-	auth      Authenticator
-}
-
-// Authenticator stub
-type Authenticator interface {
-	Type() string
-	User() string
-	Pass() string
-	Authorize(*http.Request, string, string)
-}
-
-// NoAuth structure holds our credentials
-type NoAuth struct {
-	user string
-	pw   string
-}
-
-// Type identifies the authenticator
-func (n *NoAuth) Type() string {
-	return "NoAuth"
-}
-
-// User returns the current user
-func (n *NoAuth) User() string {
-	return n.user
-}
-
-// Pass returns the current password
-func (n *NoAuth) Pass() string {
-	return n.pw
-}
-
-// Authorize the current request
-func (n *NoAuth) Authorize(req *http.Request, method string, path string) {
+	auth        Authorizer
 }
 
 // NewClient creates a new instance of client
 func NewClient(uri, user, pw string) *Client {
-	return &Client{FixSlash(uri), make(http.Header), nil, &http.Client{}, sync.Mutex{}, &NoAuth{user, pw}}
+	return NewAuthClient(uri, NewAutoAuth(user, pw))
+}
+
+// NewAuthClient creates a new client instance with a custom Authorizer
+func NewAuthClient(uri string, auth Authorizer) *Client {
+	c := &http.Client{
+		CheckRedirect: func(rq *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return ErrTooManyRedirects
+			}
+			if via[0].Header.Get(XInhibitRedirect) != "" {
+				return http.ErrUseLastResponse
+			}
+			return nil
+		},
+	}
+	return &Client{root: FixSlash(uri), headers: make(http.Header), interceptor: nil, c: c, auth: auth}
 }
 
 // SetHeader lets us set arbitrary headers for a given client
@@ -82,6 +65,11 @@ func (c *Client) SetTransport(transport http.RoundTripper) {
 	c.c.Transport = transport
 }
 
+// SetJar exposes the ability to set a cookie jar to the client.
+func (c *Client) SetJar(jar http.CookieJar) {
+	c.c.Jar = jar
+}
+
 // Connect connects to our dav server
 func (c *Client) Connect() error {
 	rs, err := c.options("/")
@@ -95,7 +83,7 @@ func (c *Client) Connect() error {
 	}
 
 	if rs.StatusCode != 200 {
-		return newPathError("Connect", c.root, rs.StatusCode)
+		return NewPathError("Connect", c.root, rs.StatusCode)
 	}
 
 	return nil
@@ -139,7 +127,7 @@ func (c *Client) ReadDir(path string) ([]os.FileInfo, error) {
 				r.Props = nil
 				return nil
 			}
-			return newPathError("ReadDir", path, 405)
+			return NewPathError("ReadDir", path, 405)
 		}
 
 		if p := getProps(r, "200"); p != nil {
@@ -186,7 +174,7 @@ func (c *Client) ReadDir(path string) ([]os.FileInfo, error) {
 
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok {
-			err = newPathErrorErr("ReadDir", path, err)
+			err = NewPathErrorErr("ReadDir", path, err)
 		}
 	}
 	return files, err
@@ -209,7 +197,7 @@ func (c *Client) Stat(path string) (os.FileInfo, error) {
 					f.path += "/"
 				}
 				f.size = 0
-				f.modified = time.Unix(0, 0)
+				f.modified = parseModified(&p.Modified)
 				f.isdir = true
 			} else {
 				f.size = parseInt64(&p.Size)
@@ -238,7 +226,7 @@ func (c *Client) Stat(path string) (os.FileInfo, error) {
 
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok {
-			err = newPathErrorErr("ReadDir", path, err)
+			err = NewPathErrorErr("ReadDir", path, err)
 		}
 	}
 	return f, err
@@ -253,7 +241,7 @@ func (c *Client) Remove(path string) error {
 func (c *Client) RemoveAll(path string) error {
 	rs, err := c.req("DELETE", path, nil, nil)
 	if err != nil {
-		return newPathError("Remove", path, 400)
+		return NewPathError("Remove", path, 400)
 	}
 	err = rs.Body.Close()
 	if err != nil {
@@ -264,27 +252,34 @@ func (c *Client) RemoveAll(path string) error {
 		return nil
 	}
 
-	return newPathError("Remove", path, rs.StatusCode)
+	return NewPathError("Remove", path, rs.StatusCode)
 }
 
 // Mkdir makes a directory
-func (c *Client) Mkdir(path string, _ os.FileMode) error {
+func (c *Client) Mkdir(path string, _ os.FileMode) (err error) {
 	path = FixSlashes(path)
-	status := c.mkcol(path)
+	status, err := c.mkcol(path)
+	if err != nil {
+		return
+	}
 	if status == 201 {
 		return nil
 	}
 
-	return newPathError("Mkdir", path, status)
+	return NewPathError("Mkdir", path, status)
 }
 
 // MkdirAll like mkdir -p, but for webdav
-func (c *Client) MkdirAll(path string, _ os.FileMode) error {
+func (c *Client) MkdirAll(path string, _ os.FileMode) (err error) {
 	path = FixSlashes(path)
-	status := c.mkcol(path)
+	status, err := c.mkcol(path)
+	if err != nil {
+		return
+	}
 	if status == 201 {
 		return nil
-	} else if status == 409 {
+	}
+	if status == 409 {
 		paths := strings.Split(path, "/")
 		sub := "/"
 		for _, e := range paths {
@@ -292,15 +287,18 @@ func (c *Client) MkdirAll(path string, _ os.FileMode) error {
 				continue
 			}
 			sub += e + "/"
-			status = c.mkcol(sub)
+			status, err = c.mkcol(sub)
+			if err != nil {
+				return
+			}
 			if status != 201 {
-				return newPathError("MkdirAll", sub, status)
+				return NewPathError("MkdirAll", sub, status)
 			}
 		}
 		return nil
 	}
 
-	return newPathError("MkdirAll", path, status)
+	return NewPathError("MkdirAll", path, status)
 }
 
 // Rename moves a file from A to B
@@ -335,7 +333,7 @@ func (c *Client) Read(path string) ([]byte, error) {
 func (c *Client) ReadStream(path string) (io.ReadCloser, error) {
 	rs, err := c.req("GET", path, nil, nil)
 	if err != nil {
-		return nil, newPathErrorErr("ReadStream", path, err)
+		return nil, NewPathErrorErr("ReadStream", path, err)
 	}
 
 	if rs.StatusCode == 200 {
@@ -343,47 +341,98 @@ func (c *Client) ReadStream(path string) (io.ReadCloser, error) {
 	}
 
 	rs.Body.Close()
-	return nil, newPathError("ReadStream", path, rs.StatusCode)
+	return nil, NewPathError("ReadStream", path, rs.StatusCode)
+}
+
+// ReadStreamRange reads the stream representing a subset of bytes for a given path,
+// utilizing HTTP Range Requests if the server supports it.
+// The range is expressed as offset from the start of the file and length, for example
+// offset=10, length=10 will return bytes 10 through 19.
+//
+// If the server does not support partial content requests and returns full content instead,
+// this function will emulate the behavior by skipping `offset` bytes and limiting the result
+// to `length`.
+func (c *Client) ReadStreamRange(path string, offset, length int64) (io.ReadCloser, error) {
+	rs, err := c.req("GET", path, nil, func(r *http.Request) {
+		if length > 0 {
+			r.Header.Add("Range", fmt.Sprintf("bytes=%d-%d", offset, offset+length-1))
+		} else {
+			r.Header.Add("Range", fmt.Sprintf("bytes=%d-", offset))
+		}
+	})
+	if err != nil {
+		return nil, NewPathErrorErr("ReadStreamRange", path, err)
+	}
+
+	if rs.StatusCode == http.StatusPartialContent {
+		// server supported partial content, return as-is.
+		return rs.Body, nil
+	}
+
+	// server returned success, but did not support partial content, so we have the whole
+	// stream in rs.Body
+	if rs.StatusCode == 200 {
+		// discard first 'offset' bytes.
+		if _, err := io.Copy(io.Discard, io.LimitReader(rs.Body, offset)); err != nil {
+			return nil, NewPathErrorErr("ReadStreamRange", path, err)
+		}
+
+		// return a io.ReadCloser that is limited to `length` bytes.
+		return &limitedReadCloser{rc: rs.Body, remaining: int(length)}, nil
+	}
+
+	rs.Body.Close()
+	return nil, NewPathError("ReadStream", path, rs.StatusCode)
 }
 
 // Write writes data to a given path
-func (c *Client) Write(path string, data []byte, _ os.FileMode) error {
-	s := c.put(path, bytes.NewReader(data))
+func (c *Client) Write(path string, data []byte, _ os.FileMode) (err error) {
+	s, err := c.put(path, bytes.NewReader(data))
+	if err != nil {
+		return
+	}
+
 	switch s {
 
 	case 200, 201, 204:
 		return nil
 
-	case 409:
-		err := c.createParentCollection(path)
+	case 404, 409:
+		err = c.createParentCollection(path)
 		if err != nil {
-			return err
+			return
 		}
 
-		s = c.put(path, bytes.NewReader(data))
+		s, err = c.put(path, bytes.NewReader(data))
+		if err != nil {
+			return
+		}
 		if s == 200 || s == 201 || s == 204 {
-			return nil
+			return
 		}
 	}
 
-	return newPathError("Write", path, s)
+	return NewPathError("Write", path, s)
 }
 
 // WriteStream writes a stream
-func (c *Client) WriteStream(path string, stream io.Reader, _ os.FileMode) error {
+func (c *Client) WriteStream(path string, stream io.Reader, _ os.FileMode) (err error) {
 
-	err := c.createParentCollection(path)
+	err = c.createParentCollection(path)
 	if err != nil {
 		return err
 	}
 
-	s := c.put(path, stream)
+	s, err := c.put(path, stream)
+	if err != nil {
+		return err
+	}
 
 	switch s {
 	case 200, 201, 204:
 		return nil
 
 	default:
-		return newPathError("WriteStream", path, s)
+		return NewPathError("WriteStream", path, s)
 	}
 }
