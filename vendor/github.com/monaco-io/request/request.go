@@ -1,33 +1,69 @@
 package request
 
 import (
-	"io/ioutil"
-	"net/http"
+	originContext "context"
+
+	"github.com/monaco-io/request/request"
+	"github.com/monaco-io/request/response"
+	"github.com/monaco-io/request/xcontext"
 )
 
-// Do send http request
-func (c *Client) Do() (resp SugaredResp, err error) {
-	defer resp.Close()
+// Send http request
+func (c *Client) Send() *response.Sugar {
 
-	if err = c.buildRequest(); err != nil {
-		return
-	}
+	ctx := c.initContext()
+	resp := response.New(ctx)
 
-	// send request and close on func call end
-	if resp.resp, err = c.client.Do(c.req); err != nil {
-		return
-	}
-
-	// read response data form resp
-	resp.Data, err = ioutil.ReadAll(resp.resp.Body)
-	resp.Code = resp.resp.StatusCode
-	return
+	return resp.Do()
 }
 
-// Resp do request and get original http response struct
-func (c *Client) Resp() (resp *http.Response, err error) {
-	if err = c.buildRequest(); err != nil {
-		return
+func (c *Client) initContext() *xcontext.Context {
+	var ctx *xcontext.Context
+
+	if c.Context != nil {
+		ctx = xcontext.NewWithContext(c.Context)
+	} else {
+		ctx = xcontext.New()
 	}
-	return c.client.Do(c.req)
+
+	plugins := []request.Plugin{
+		request.URL{Data: c.URL},
+		request.UserAgent{Version: Version},
+		request.Query{Data: c.Query},
+		request.Method{Data: c.Method},
+		request.Header{Data: c.Header},
+		request.SortedHeader{Data: c.SortedHeader},
+		request.Cookies{Data: c.Cookies, Map: c.CookiesMap},
+		request.BasicAuth{Username: c.BasicAuth.Username, Password: c.BasicAuth.Password},
+		request.BearerAuth{Data: c.Bearer},
+		request.CustomerAuth{Data: c.CustomerAuth},
+		request.Timeout{Data: c.Timeout},
+		request.Proxy{Servers: c.ProxyServers, URL: c.ProxyURL},
+		request.BodyJSON{Data: c.JSON},
+		request.BodyString{Data: c.String},
+		request.BodyXML{Data: c.XML},
+		request.BodyYAML{Data: c.YAML},
+		request.BodyForm{Fields: c.MultipartForm.Fields, Files: c.MultipartForm.Files},
+		request.BodyURLEncodedForm{Data: c.URLEncodedForm},
+		request.Transport{Transport: c.Transport},
+		request.TLSConfig{Config: c.TLSConfig},
+	}
+
+	for _, plugin := range plugins {
+		if plugin.Valid() {
+			plugin.Apply(ctx)
+		}
+	}
+
+	return ctx
+}
+
+// New a empty request
+func New() *request.Request {
+	return request.New()
+}
+
+// NewWithContext a empty request
+func NewWithContext(ctx originContext.Context) *request.Request {
+	return request.NewWithContext(ctx)
 }
