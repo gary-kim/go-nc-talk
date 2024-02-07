@@ -8,11 +8,11 @@ steps:
     commands:
       - golangci-lint run
   - name: test
-    image: golang:1.16
+    image: golang:1.22
     commands:
       - go test ./...
   - name: build-test
-    image: golang:1.16
+    image: golang:1.22
     commands:
       - go build
 
